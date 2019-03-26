@@ -1,52 +1,59 @@
 <template>
-  <div class="ui fluid search selection dropdown"
-       :class="{ 'active visible':showMenu, 'error': isError, 'disabled': isDisabled }"
-       @click="openOptions"
-       @focus="openOptions">
+  <div
+    style="text-align:right;"
+    class="ui fluid search selection dropdown"
+    :class="{ 'active visible':showMenu, 'error': isError, 'disabled': isDisabled }"
+    @click="openOptions"
+    @focus="openOptions"
+  >
     <i class="dropdown icon"></i>
-    <input class="search"
-           autocomplete="off"
-           tabindex="0"
-           :id="id"
-           :name="name"
-           :value="searchText"
-           @input="searchText = $event.target.value"
-           ref="input"
-           @focus.prevent="openOptions"
-           @keyup.esc="closeOptions"
-           @blur="blurInput"
-           @keydown.up="prevItem"
-           @keydown.down="nextItem"
-           @keydown.enter.prevent=""
-           @keyup.enter.prevent="enterItem"
-           @keydown.delete="deleteTextOrItem"
-    />
-    <div class="text"
-         :class="textClass" :data-vss-custom-attr="searchTextCustomAttr">{{inputText}}
-    </div>
-    <div class="menu"
-         ref="menu"
-         @mousedown.prevent
-         :class="menuClass"
-         :style="menuStyle"
-         tabindex="-1">
+    <input
+      style="text-align:right;"
+      class="search"
+      autocomplete="off"
+      tabindex="0"
+      :id="id"
+      :name="name"
+      :value="searchText"
+      @input="searchText = $event.target.value"
+      ref="input"
+      @focus.prevent="openOptions"
+      @keyup.esc="closeOptions"
+      @blur="blurInput"
+      @keydown.up="prevItem"
+      @keydown.down="nextItem"
+      @keydown.enter.prevent
+      @keyup.enter.prevent="enterItem"
+      @keydown.delete="deleteTextOrItem"
+    >
+
+    <div class="text" :class="textClass" :data-vss-custom-attr="searchTextCustomAttr">{{inputText}}</div>
+    <div
+      class="menu"
+      ref="menu"
+      @mousedown.prevent
+      :class="menuClass"
+      :style="menuStyle"
+      tabindex="-1"
+    >
       <template v-for="(option, idx) in filteredOptions">
-        <div class="item"
-             :class="{ 'selected': option.selected, 'current': pointer === idx }"
-             :data-vss-custom-attr="customAttrs[idx] ? customAttrs[idx] : ''"
-             @click.stop="selectItem(option)"
-             @mousedown="mousedownItem"
-             @mouseenter="pointerSet(idx)">
-          {{option.text}}
-        </div>
+        <div
+          style="text-align:right;"
+          class="item"
+          :class="{ 'selected': option.selected, 'current': pointer === idx }"
+          :data-vss-custom-attr="customAttrs[idx] ? customAttrs[idx] : ''"
+          @click.stop="selectItem(option)"
+          @mousedown="mousedownItem"
+          @mouseenter="pointerSet(idx)"
+        >{{option.text}}</div>
       </template>
     </div>
   </div>
 </template>
 
 <script>
-import common from './common'
-import { baseMixin, commonMixin, optionAwareMixin } from './mixins'
+import common from "./common";
+import { baseMixin, commonMixin, optionAwareMixin } from "./mixins";
 
 export default {
   mixins: [baseMixin, commonMixin, optionAwareMixin],
@@ -55,141 +62,141 @@ export default {
       type: [String, Number, Object, Boolean]
     }
   },
-  data () {
+  data() {
     return {
       showMenu: false,
-      searchText: '',
+      searchText: "",
       mousedownState: false, // mousedown on option menu
       pointer: -1
-    }
+    };
   },
   watch: {
-    value (newValue) {
+    value(newValue) {
       this.pointer = this.filteredOptions.findIndex(option => {
-        return option.value === this.optionValue(newValue)
-      })
+        return option.value === this.optionValue(newValue);
+      });
     }
   },
   computed: {
-    searchTextCustomAttr () {
+    searchTextCustomAttr() {
       if (this.selectedOption && this.selectedOption.value) {
-        return this.customAttr(this.selectedOption)
+        return this.customAttr(this.selectedOption);
       }
-      return ''
+      return "";
     },
-    inputText () {
+    inputText() {
       if (this.searchText) {
-        return ''
+        return "";
       } else {
-        let text = this.placeholder
+        let text = this.placeholder;
         if (this.selectedOption) {
-          text = this.selectedOption.text
+          text = this.selectedOption.text;
         }
-        return text
+        return text;
       }
     },
-    customAttrs () {
+    customAttrs() {
       try {
         if (Array.isArray(this.options)) {
-          return this.options.map(o => this.customAttr(o))
+          return this.options.map(o => this.customAttr(o));
         }
       } catch (e) {
         // if there is an error, just return an empty array
       }
-      return []
+      return [];
     },
-    textClass () {
+    textClass() {
       if (!this.selectedOption && this.placeholder) {
-        return 'default'
+        return "default";
       } else {
-        return ''
+        return "";
       }
     },
-    menuClass () {
+    menuClass() {
       return {
         visible: this.showMenu,
         hidden: !this.showMenu
-      }
+      };
     },
-    menuStyle () {
+    menuStyle() {
       return {
-        display: this.showMenu ? 'block' : 'none'
-      }
+        display: this.showMenu ? "block" : "none"
+      };
     },
-    filteredOptions () {
+    filteredOptions() {
       if (this.searchText) {
-        return this.options.filter((option) => {
+        return this.options.filter(option => {
           try {
-            return this.filterPredicate(option.text, this.searchText)
+            return this.filterPredicate(option.text, this.searchText);
           } catch (e) {
-            return true
+            return true;
           }
-        })
+        });
       } else {
-        return this.options
+        return this.options;
       }
     },
-    selectedOption () {
+    selectedOption() {
       return this.options.find(option => {
-        return option.value === this.optionValue(this.value)
-      })
+        return option.value === this.optionValue(this.value);
+      });
     }
   },
   methods: {
-    deleteTextOrItem () {
+    deleteTextOrItem() {
       if (!this.searchText && this.value) {
-        this.selectItem({})
-        this.openOptions()
+        this.selectItem({});
+        this.openOptions();
       }
     },
-    openOptions () {
-      common.openOptions(this)
+    openOptions() {
+      common.openOptions(this);
     },
-    blurInput () {
-      common.blurInput(this)
+    blurInput() {
+      common.blurInput(this);
     },
-    closeOptions () {
-      common.closeOptions(this)
+    closeOptions() {
+      common.closeOptions(this);
     },
-    prevItem () {
-      common.prevItem(this)
+    prevItem() {
+      common.prevItem(this);
     },
-    nextItem () {
-      common.nextItem(this)
+    nextItem() {
+      common.nextItem(this);
     },
-    enterItem () {
-      common.enterItem(this)
+    enterItem() {
+      common.enterItem(this);
     },
-    pointerSet (index) {
-      common.pointerSet(this, index)
+    pointerSet(index) {
+      common.pointerSet(this, index);
     },
-    pointerAdjust () {
-      common.pointerAdjust(this)
+    pointerAdjust() {
+      common.pointerAdjust(this);
     },
-    mousedownItem () {
-      common.mousedownItem(this)
+    mousedownItem() {
+      common.mousedownItem(this);
     },
-    selectItem (option) {
-      this.searchText = ''
-      this.closeOptions()
-      if (typeof this.value === 'object' && this.value) {
-        this.$emit('input', option)
+    selectItem(option) {
+      this.searchText = "";
+      this.closeOptions();
+      if (typeof this.value === "object" && this.value) {
+        this.$emit("input", option);
       } else {
-        this.$emit('input', option.value)
+        this.$emit("input", option.value);
         if (option.value === option.text) {
-          this.searchText = option.value
+          this.searchText = option.value;
         }
       }
     },
-    optionValue (value) {
-      if (typeof value === 'object' && value !== null) {
-        return value.value
+    optionValue(value) {
+      if (typeof value === "object" && value !== null) {
+        return value.value;
       } else {
-        return value
+        return value;
       }
     }
   }
-}
+};
 </script>
 
 <style scoped src="semantic-ui-dropdown/dropdown.css"></style>

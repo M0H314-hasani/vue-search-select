@@ -1,59 +1,72 @@
 <template>
-  <div class="ui fluid multiple search selection dropdown"
-       :class="{ 'active visible':showMenu, 'error': isError, 'disabled': isDisabled }"
-       @click="openOptions"
-       @focus="openOptions">
+  <div
+    style="text-align:right;"
+    class="ui fluid search selection dropdown"
+    :class="{ 'active visible':showMenu, 'error': isError, 'disabled': isDisabled }"
+    @click="openOptions"
+    @focus="openOptions"
+  >
     <i class="dropdown icon"></i>
     <template v-for="(option, idx) in selectedOptions" v-if="!hideSelectedOptions">
-      <a class="ui label transition visible"
-         style="display: inline-block !important;"
-         :data-vss-custom-attr="customAttr(option)">
-        {{option.text}}<i class="delete icon" @click="deleteItem(option)"></i>
+      <a
+        style="display: inline-block !important; "
+        class="ui label transition visible"
+        :data-vss-custom-attr="customAttr(option)"
+      >
+        <span>{{option.text}}</span>
+        <i
+          style="display: inline-block !important; "
+          class="la la-close"
+          @click="deleteItem(option)"
+        ></i>
       </a>
     </template>
-    <input class="search"
-           autocomplete="off"
-           tabindex="0"
-           :id="id"
-           :name="name"
-           v-model="searchText"
-           ref="input"
-           :style="inputWidth"
-           @focus.prevent="openOptions"
-           @keyup.esc="closeOptions"
-           @blur="blurInput"
-           @keydown.up="prevItem"
-           @keydown.down="nextItem"
-           @keydown.enter.prevent=""
-           @keyup.enter.prevent="enterItem"
-           @keydown.delete="deleteTextOrLastItem"
-    />
-    <div class="text"
-         :class="textClass">{{inputText}}
-    </div>
-    <div class="menu"
-         ref="menu"
-         @mousedown.prevent
-         :class="menuClass"
-         :style="menuStyle"
-         tabindex="-1">
+    <input
+      style="text-align:right;"
+      class="search"
+      autocomplete="off"
+      tabindex="0"
+      :id="id"
+      :name="name"
+      v-model="searchText"
+      ref="input"
+      :style="inputWidth"
+      @focus.prevent="openOptions"
+      @keyup.esc="closeOptions"
+      @blur="blurInput"
+      @keydown.up="prevItem"
+      @keydown.down="nextItem"
+      @keydown.enter.prevent
+      @keyup.enter.prevent="enterItem"
+      @keydown.delete="deleteTextOrLastItem"
+    >
+    <div class="text" :class="textClass">{{inputText}}</div>
+    <div
+      class="menu"
+      ref="menu"
+      @mousedown.prevent
+      :class="menuClass"
+      :style="menuStyle"
+      tabindex="-1"
+    >
       <template v-for="(option, idx) in filteredOptions">
-        <div class="item"
-             :class="{ 'selected': option.selected, 'current': pointer === idx }"
-             :data-vss-custom-attr="customAttr(option)"
-             @click.stop="selectItem(option)"
-             @mousedown="mousedownItem"
-             @mouseenter="pointerSet(idx)">
-          {{option.text}}
-        </div>
+        <div
+          style="text-align:right;"
+          class="item"
+          :class="{ 'selected': option.selected, 'current': pointer === idx }"
+          :data-vss-custom-attr="customAttr(option)"
+          @click.stop="selectItem(option)"
+          @mousedown="mousedownItem"
+          @mouseenter="pointerSet(idx)"
+        >{{option.text}}</div>
       </template>
     </div>
   </div>
 </template>
 
 <script>
-import common from './common'
-import { baseMixin, commonMixin, optionAwareMixin } from './mixins'
+import common from "./common";
+import { baseMixin, commonMixin, optionAwareMixin } from "./mixins";
 
 export default {
   mixins: [baseMixin, commonMixin, optionAwareMixin],
@@ -70,141 +83,144 @@ export default {
       default: false
     }
   },
-  data () {
+  data() {
     return {
       showMenu: false,
-      searchText: '',
+      searchText: "",
       mousedownState: false, // mousedown on option menu
       pointer: -1
-    }
+    };
   },
   watch: {
-    selectedOptions () {
-      this.pointer = -1
+    selectedOptions() {
+      this.pointer = -1;
     }
   },
   computed: {
-    inputText () {
-      if (this.searchText) {
-        return ''
+    inputText() {
+      if (this.searchText || this.selectedOptions.length) {
+        return "";
       } else {
-        return this.placeholder
+        return this.placeholder;
       }
     },
-    textClass () {
+    textClass() {
       if (this.placeholder) {
-        return 'default'
+        return "default";
       } else {
-        return ''
+        return "";
       }
     },
-    inputWidth () {
+    inputWidth() {
       return {
-        width: ((this.searchText.length + 1) * 8) + 20 + 'px'
-      }
+        width: (this.searchText.length + 1) * 8 + 20 + "px"
+      };
     },
-    menuClass () {
+    menuClass() {
       return {
         visible: this.showMenu,
         hidden: !this.showMenu
-      }
+      };
     },
-    menuStyle () {
+    menuStyle() {
       return {
-        display: this.showMenu ? 'block' : 'none'
-      }
+        display: this.showMenu ? "block" : "none"
+      };
     },
-    nonSelectOptions () {
+    nonSelectOptions() {
       return this.options.filter(el => {
-        return this.selectedOptions.findIndex(o => o.value === el.value) === -1
-      })
+        return this.selectedOptions.findIndex(o => o.value === el.value) === -1;
+      });
     },
-    filteredOptions () {
+    filteredOptions() {
       if (this.searchText) {
         return this.nonSelectOptions.filter(option => {
           try {
             if (this.cleanSearch) {
-              return this.filterPredicate(this.accentsTidy(option.text), this.searchText)
+              return this.filterPredicate(
+                this.accentsTidy(option.text),
+                this.searchText
+              );
             } else {
-              return this.filterPredicate(option.text, this.searchText)
+              return this.filterPredicate(option.text, this.searchText);
             }
           } catch (e) {
-            return true
+            return true;
           }
-        })
+        });
       } else {
-        return this.nonSelectOptions
+        return this.nonSelectOptions;
       }
     }
   },
   methods: {
-    deleteTextOrLastItem () {
+    deleteTextOrLastItem() {
       if (!this.searchText && this.selectedOptions.length > 0) {
-        this.deleteItem(this.selectedOptions[this.selectedOptions.length - 1])
+        this.deleteItem(this.selectedOptions[this.selectedOptions.length - 1]);
       }
     },
-    openOptions () {
-      common.openOptions(this)
+    openOptions() {
+      common.openOptions(this);
     },
-    blurInput () {
-      common.blurInput(this)
+    blurInput() {
+      common.blurInput(this);
     },
-    closeOptions () {
-      common.closeOptions(this)
+    closeOptions() {
+      common.closeOptions(this);
     },
-    prevItem () {
-      common.prevItem(this)
-      this.closeOptions()
-      this.openOptions()
+    prevItem() {
+      common.prevItem(this);
+      this.closeOptions();
+      this.openOptions();
     },
-    nextItem () {
-      common.nextItem(this)
-      this.closeOptions()
-      this.openOptions()
+    nextItem() {
+      common.nextItem(this);
+      this.closeOptions();
+      this.openOptions();
     },
-    enterItem () {
-      common.enterItem(this)
+    enterItem() {
+      common.enterItem(this);
     },
-    pointerSet (index) {
-      common.pointerSet(this, index)
+    pointerSet(index) {
+      common.pointerSet(this, index);
     },
-    pointerAdjust () {
-      common.pointerAdjust(this)
+    pointerAdjust() {
+      common.pointerAdjust(this);
     },
-    mousedownItem () {
-      common.mousedownItem(this)
+    mousedownItem() {
+      common.mousedownItem(this);
     },
-    selectItem (option) {
-      const tempSelectedOptions = this.selectedOptions.concat(option)
+    selectItem(option) {
+      const tempSelectedOptions = this.selectedOptions.concat(option);
       const selectedOptions = tempSelectedOptions.filter((el, idx) => {
-        return tempSelectedOptions.indexOf(el) === idx
-      })
-      this.closeOptions()
-      this.searchText = ''
-      this.$emit('select', selectedOptions, option, 'insert')
+        return tempSelectedOptions.indexOf(el) === idx;
+      });
+      this.closeOptions();
+      this.searchText = "";
+      this.$emit("select", selectedOptions, option, "insert");
     },
-    deleteItem (option) {
+    deleteItem(option) {
       const selectedOptions = this.selectedOptions.filter(o => {
-        return o.value !== option.value
-      })
-      this.$emit('select', selectedOptions, option, 'delete')
+        return o.value !== option.value;
+      });
+      this.$emit("select", selectedOptions, option, "delete");
     },
-    accentsTidy (s) {
-      let r = s.toString().toLowerCase()
-      r = r.replace(new RegExp('[àáâãäå]', 'g'), 'a')
-      r = r.replace(new RegExp('æ', 'g'), 'ae')
-      r = r.replace(new RegExp('ç', 'g'), 'c')
-      r = r.replace(new RegExp('[èéêë]', 'g'), 'e')
-      r = r.replace(new RegExp('[ìíîï]', 'g'), 'i')
-      r = r.replace(new RegExp('ñ', 'g'), 'n')
-      r = r.replace(new RegExp('[òóôõö]', 'g'), 'o')
-      r = r.replace(new RegExp('œ', 'g'), 'oe')
-      r = r.replace(new RegExp('[ùúûü]', 'g'), 'u')
-      r = r.replace(new RegExp('[ýÿ]', 'g'), 'y')
-      return r
+    accentsTidy(s) {
+      let r = s.toString().toLowerCase();
+      r = r.replace(new RegExp("[àáâãäå]", "g"), "a");
+      r = r.replace(new RegExp("æ", "g"), "ae");
+      r = r.replace(new RegExp("ç", "g"), "c");
+      r = r.replace(new RegExp("[èéêë]", "g"), "e");
+      r = r.replace(new RegExp("[ìíîï]", "g"), "i");
+      r = r.replace(new RegExp("ñ", "g"), "n");
+      r = r.replace(new RegExp("[òóôõö]", "g"), "o");
+      r = r.replace(new RegExp("œ", "g"), "oe");
+      r = r.replace(new RegExp("[ùúûü]", "g"), "u");
+      r = r.replace(new RegExp("[ýÿ]", "g"), "y");
+      return r;
     }
   }
-}
+};
 </script>
 <style scoped src="semantic-ui-label/label.css"></style>
 <style scoped src="semantic-ui-dropdown/dropdown.css"></style>
